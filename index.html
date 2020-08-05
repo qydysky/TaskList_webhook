@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta name="Description" content="Webhook" />
+    <title>Webhook</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.1/css/bootstrap.min.css" />
+</head>
+
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <a class="navbar-brand" href="https://github.com/adnanh/webhook">TaskList-Webhook</a>
+        <form class="form-inline">
+            <button type="button" class="btn btn-success" id="Run">
+                Run All
+            </button>
+        </form>
+    </nav>
+    <section>
+        <div class="container">
+            <div class="row my-4">
+                <div class="col">
+                    <div class="card text-white bg-dark">
+                        <div class="card-header border-bottom">
+                            Task list
+                        </div>
+                        <div class="card-body">
+                            <div class="accordion" id="ul">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        (() => {
+            /**
+             * @function xhr xhr请求
+             * @version 0.0
+             * @param {*} url 地址
+             * @param {*} callback 回调，为数组
+             */
+            function xhr(url, callback) {
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function () {
+                    switch (xhr.readyState) {
+                        case 0:
+                            if (callback[0]) callback[0](xhr);
+                            break;
+                        case 1:
+                            if (callback[1]) callback[1](xhr);
+                            break;
+                        case 2:
+                            if (callback[2]) callback[2](xhr);
+                            break;
+                        case 3:
+                            if (callback[3]) callback[3](xhr);
+                            break;
+                        case 4:
+                            if (callback[4]) callback[4](xhr);
+                            break;
+                        default:
+                            break;
+                    };
+                }
+                xhr.open("GET", url);
+                xhr.send();
+            }
+            /**
+             * @function addDOM 添加节点
+             * @version 0.0
+             * @parm El 添加到哪个元素 dom对象
+             * @parm ElN 添加的元素名 字符串
+             * @parm text 元素内的值 字符串
+             * @parm cla 该元素属性，数组，[[属性名,属性值],[..,..],] [字符串，字符串]
+             * @parm before true:添加到子元素的开始 false:添加到子元素的末尾 bool
+             */
+            window.addDOM = function addDOM(El, ElN, text, cla, firstdom) {
+                if (!El || !ElN) return;
+                let d;
+                if (El.nodeName == "svg" || ElN == "svg")
+                    d = document.createElementNS("http://www.w3.org/2000/svg", ElN);
+                else d = document.createElement(ElN);
+
+                if (text) d.innerHTML = text;
+                for (var i = 0; i < cla.length; i++) {
+                    try {
+                        d.setAttribute(cla[i][0], cla[i][1]);
+                    } catch (e) {
+                        console.error("addDom:error!!!!");
+                        console.log(d);
+                        console.log(e);
+                    }
+                }
+                if (!firstdom) El.appendChild(d);
+                else El.insertBefore(d, firstdom);
+
+                //  insertAfter(d, El, before);
+                return d;
+            };
+
+            let url = "http://127.0.0.1:9000/hooks/";
+            let pdom = document.getElementById("ul");
+            //load
+            xhr(url+"setup", [, , , , (e) => {
+                let res = JSON.parse(e.response);
+                res.forEach(element => {
+                    let a1 = addDOM(pdom, "div", "", [
+                            ["class", "card bg-dark"],
+                            ["id", element.id]
+                        ]),
+                        a2 = addDOM(a1, "div", "", [
+                            ["class", "card-header"]
+                        ]),
+                        a3 = addDOM(a2, "h2", "", [
+                            ["class", "mb-0 border-left"],
+                        ]),
+                        a4 = addDOM(a3, "button", element.id, [
+                            ["class",
+                                "btn btn-block text-light text-left collapsed text-decoration-none shadow-none d-flex justify-content-between align-items-center"
+                            ],
+                            ["type", "button"],
+                            ["data-toggle", "collapse"],
+                            ["data-target", "#" + element.id + "l"],
+                            ["aria-expanded", "false"],
+                            ["aria-controls", element.id + "l"]
+                        ]),
+                        a5 = addDOM(a4, "button", "Run", [
+                            ["type", "button"],
+                            ["class", "btn btn-secondary btn-sm ml-auto mr-3"]
+                        ]),
+                        a6 = addDOM(a4, "span", "wait", [
+                            ["class", "badge badge-warning"]
+                        ]),
+                        b1 = addDOM(a1, "div", "", [
+                            ["id", element.id + "l"],
+                            ["class", "collapse"],
+                            ["aria-labelledby", element.id],
+                            ["data-parent", "#ul"]
+                        ]),
+                        b2 = addDOM(b1, "div", "", [
+                            ["class", "card-body bg-secondary mx-lg-5"]
+                        ]),
+                        b3 = addDOM(b2, "p", "OutPut:",[]),
+                        b4 = addDOM(b2, "p", "",[["id", element.id + "return"]]);
+                        a5.addEventListener("click",()=>{loop(a1,true)})
+                });
+            }]);
+            // function runone(cdom){
+            //     loop()
+            // }
+            function loop(dom,Issig) {
+                let _dom = dom.getElementsByTagName("span")[0];
+                _dom.setAttribute("class", "badge badge-info");
+                _dom.innerHTML = "running";
+                xhr(url + dom.id, [, , , , (e) => {
+                    let res = e.response;
+                    switch (e.status) {
+                        case 500:
+                            _dom.setAttribute("class", "badge badge-danger");
+                            _dom.innerHTML = "false"
+                            break;
+
+                        default:
+                            _dom.setAttribute("class", "badge badge-success");
+                            _dom.innerHTML = "ok"
+                            break;
+                    }
+                    res=res.replace(/\r\n/g,"<br>");
+                    res=res.replace(/\n/g,"<br>");
+                    res=res.replace(/ /g,"&nbsp;");
+                    document.getElementById(dom.id + "return").innerHTML = res;
+                    if (Issig || !dom.nextElementSibling) return;
+                    loop(dom.nextElementSibling);
+                }]);
+            }
+            document.getElementById("Run").addEventListener("click", () => {
+                loop(pdom.children[0])
+            })
+        })()
+    </script>
+</body>
+
+</html>

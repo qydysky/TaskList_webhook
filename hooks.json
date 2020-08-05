@@ -1,0 +1,38 @@
+[
+    {
+        "id": "boot",
+        "execute-command": "cat",
+        "response-headers": [
+            {
+                "name": "Content-Type",
+                "value": "text/html"
+            }
+        ],
+        "pass-arguments-to-command": [
+            {
+                "source": "string",
+                "name": "index.html"
+            }
+        ],
+        "command-working-directory": "./",
+        "include-command-output-in-response": true
+    },
+    {
+        "id": "setup",
+        "execute-command": "cat",
+        "pass-arguments-to-command": [
+            {
+                "source": "string",
+                "name": "hooks.json"
+            }
+        ],
+        "command-working-directory": "./",
+        "include-command-output-in-response": true
+    },
+    {
+        "id": "ls",
+        "execute-command": "ls",
+        "command-working-directory": "./",
+        "include-command-output-in-response": true
+    }
+]
