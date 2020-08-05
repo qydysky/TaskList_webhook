@@ -161,14 +161,13 @@
                 xhr(url + dom.id, [, , , , (e) => {
                     let res = e.response;
                     switch (e.status) {
-                        case 500:
-                            _dom.setAttribute("class", "badge badge-danger");
-                            _dom.innerHTML = "false"
-                            break;
-
-                        default:
+                        case 200:
                             _dom.setAttribute("class", "badge badge-success");
-                            _dom.innerHTML = "ok"
+                            _dom.innerHTML = "ok";
+                            break;
+                        default:
+                            _dom.setAttribute("class", "badge badge-danger");
+                            _dom.innerHTML = "false";
                             break;
                     }
                     res=res.replace(/\r\n/g,"<br>");
